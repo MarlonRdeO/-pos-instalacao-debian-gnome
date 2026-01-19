@@ -103,7 +103,7 @@ echo -e "${YELLOW}Fase 5: Configurando TAB (Bash Completion)...${NC}"
 sudo sed -i '/^#[[:space:]]*if ! shopt -oq posix; then/,/^[[:space:]]*#fi/{s/^[[:space:]]*#//}' /etc/bash.bashrc
 
 # --- FASE 6: LOGIN AUTOMÁTICO ---
-echo -e "${YELLOW}Fase 6: Configurando Login Automático (aluno)...${NC}"
+echo -e "${YELLOW}Fase 6: Configurando Login Automático (marlon)...${NC}"
 GDM_CONF="/etc/gdm3/daemon.conf"
 if [ -f "$GDM_CONF" ]; then
     sudo sed -i 's/^#\?AutomaticLoginEnable.*/AutomaticLoginEnable = true/' "$GDM_CONF"
