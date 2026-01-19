@@ -2,7 +2,7 @@
 
 # ==========================================================================
 # SCRIPT DE PÓS-INSTALAÇÃO AUTOMATIZADA (DEBIAN 13 GNOME)
-# Usuário: aluno | Desligamento: 23:30 | Bilibop: LOCKFS=true
+# Usuário: aluno | Desligamento: 23:30 |
 # ==========================================================================
 
 # Cores para feedback visual
@@ -44,11 +44,11 @@ echo -e "${YELLOW}Fase 1: Instalando pacotes APT essenciais...${NC}"
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y \
     gdebi synaptic vlc openssh-server openssh-client hardinfo nmap bmon \
-    tmux btop zenity wget galculator htop net-tools cpu-x \
-     vim gimp g++ alacarte wine samba xorg ssh nmon \
-    zsh baobab flameshot minder firmware-linux-nonfree gparted tlp build-essential \
-    kdenlive exiftool file-roller bash-completion yt-dlp nala \
-    gnome-tweaks gnome-shell-extension-manager bilibop-common bilibop-lockfs # Adicionado bilibop
+    zenity wget galculator htop net-tools \
+    vim gimp g++ alacarte samba xorg ssh nmon \
+    zsh baobab firmware-linux-nonfree gparted tlp build-essential \
+    kdenlive file-roller bash-completion nala \
+    gnome-tweaks gnome-shell-extension-manager bilibop-common bilibop-lockfs 
 
 # --- FASE 2: CONFIGURAÇÃO FLATPAK E SNAP ---
 echo -e "${YELLOW}Fase 2: Configurando Flatpak e Snap...${NC}"
@@ -103,11 +103,11 @@ echo -e "${YELLOW}Fase 5: Configurando TAB (Bash Completion)...${NC}"
 sudo sed -i '/^#[[:space:]]*if ! shopt -oq posix; then/,/^[[:space:]]*#fi/{s/^[[:space:]]*#//}' /etc/bash.bashrc
 
 # --- FASE 6: LOGIN AUTOMÁTICO ---
-echo -e "${YELLOW}Fase 6: Configurando Login Automático (marlon)...${NC}"
+echo -e "${YELLOW}Fase 6: Configurando Login Automático (aluno)...${NC}"
 GDM_CONF="/etc/gdm3/daemon.conf"
 if [ -f "$GDM_CONF" ]; then
     sudo sed -i 's/^#\?AutomaticLoginEnable.*/AutomaticLoginEnable = true/' "$GDM_CONF"
-    sudo sed -i 's/^#\?AutomaticLogin =.*/AutomaticLogin = marlon/' "$GDM_CONF"
+    sudo sed -i 's/^#\?AutomaticLogin =.*/AutomaticLogin = aluno/' "$GDM_CONF"
 fi
 
 # --- FASE 7: CONFIGURAÇÃO CRONTAB (DESLIGAMENTO 23:30) ---
