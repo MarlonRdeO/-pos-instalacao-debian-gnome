@@ -1,31 +1,46 @@
 #!/bin/bash
 
 # ==========================================================================
-# SCRIPT DE PÓS-INSTALAÇÃO AUTOMATIZADA (DEBIAN 13 GNOME) - CORRIGIDO
+# SCRIPT DE PÓS-INSTALAÇÃO AUTOMATIZADA (DEBIAN 13 GNOME)
+# Usuário: aluno | Desligamento: 23:30 |
 # ==========================================================================
 
+# Cores para feedback visual
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[1;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
+# --- FUNÇÃO DE RESUMO INICIAL ---
 clear
 echo -e "${BLUE}=====================================================${NC}"
 echo -e "${BLUE}        RESUMO DA INSTALAÇÃO (DEBIAN 13 GNOME)        ${NC}"
 echo -e "${BLUE}=====================================================${NC}"
-echo -e "Corrigido: Alias de atualização e Login Automático GDM3"
+echo -e "Este script realizará as seguintes tarefas:"
+echo -e "1. ${YELLOW}APT:${NC} Atualização de pacotes base."
+echo -e "2. ${YELLOW}FLATPAK/SNAP:${NC} Configuração de repositórios universais."
+echo -e "3. ${YELLOW}APPS FLATPAK:${NC} OnlyOffice, etc."
+echo -e "4. ${YELLOW}LIMPEZA:${NC} Remoção de jogos e bloatware GNOME."
+echo -e "5. ${YELLOW}SISTEMA:${NC} Aliases, Swappiness (RAM) e Bash Completion."
+echo -e "6. ${YELLOW}LOGIN:${NC} Login Automático para o usuário 'aluno'."
+echo -e "7. ${YELLOW}CRONTAB:${NC} Desligamento automático às 23:30."
+echo -e "8. ${YELLOW}BILIBOP:${NC} Configuração."
+echo -e "9. ${YELLOW}REBOOT:${NC} Reinicialização automática."
 echo -e "${BLUE}=====================================================${NC}"
-echo -n "Deseja prosseguir com a correção e instalação? (s/n): "
+echo -n "Deseja prosseguir? (s/n): "
 read -r confirmacao
 
 if [[ "$confirmacao" != "s" && "$confirmacao" != "S" ]]; then
-    echo -e "${RED}Cancelado.${NC}"
+    echo -e "${RED}Instalação cancelada.${NC}"
     exit 0
 fi
 
+echo -e "${GREEN}Iniciando em 3 segundos...${NC}"
+sleep 3
+
 # --- FASE 1: ATUALIZAÇÃO E APT ---
-echo -e "${YELLOW}Fase 1: Instalando pacotes APT...${NC}"
+echo -e "${YELLOW}Fase 1: Instalando pacotes APT essenciais...${NC}"
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y \
     gdebi synaptic vlc openssh-server openssh-client hardinfo nmap bmon \
@@ -44,23 +59,25 @@ sudo systemctl enable --now snapd.socket
 
 # --- FASE 3: APPS FLATPAK E LIMPEZA ---
 echo -e "${YELLOW}Fase 3: Instalando Flatpaks e removendo bloatware...${NC}"
-apps=(org.onlyoffice.desktopeditors io.github.peazip.PeaZip)
+apps=(
+    org.onlyoffice.desktopeditors
+    io.github.peazip.PeaZip 
+)
 for app in "${apps[@]}"; do
     sudo flatpak install --assumeyes flathub "$app"
 done
 
-sudo apt purge -y gnome-robots gnome-2048 gnome-mahjongg iagno gnome-chess \
+sudo apt purge -y \
+    gnome-robots gnome-2048 gnome-mahjongg iagno gnome-chess \
     five-or-more gnome-klotski lightsoff gnome-mines four-in-a-row gnome-sudoku \
     gnome-taquin gnome-tetravex hitori quadrapassel aisleriot swell-foop \
     gnome-nibbles tali thunderbird libreoffice* rhythmbox cheese totem
 sudo apt autoremove -y
 
-# --- FASE 4: ALIASES (CORREÇÃO DO 'LIAS') ---
-echo -e "${YELLOW}Fase 4: Adicionando Aliases corrigidos...${NC}"
-# Limpa aliases antigos para evitar duplicidade ou erros anteriores
-sed -i '/# === ALIASES ÚTEIS ===/,/Summary/d' ~/.bashrc
-
-cat << 'EOF' >> ~/.bashrc
+# --- FASE 4: ALIASES E OTIMIZAÇÃO ---
+echo -e "${YELLOW}Fase 4: Adicionando Aliases e otimizando Swappiness...${NC}"
+if ! grep -q "# === ALIASES ÚTEIS ===" ~/.bashrc; then
+    cat << 'EOF' >> ~/.bashrc
 # === ALIASES ÚTEIS ===
 alias atualizar='sudo nala update && sudo nala upgrade -y && sudo flatpak update -y && sudo snap refresh'
 alias desligar='systemctl poweroff'
@@ -74,33 +91,49 @@ alias macinfo='for iface in $(ls /sys/class/net); do echo -n "$iface: "; cat /sy
 alias limparhistorico='history -c'
 # ======================
 EOF
+fi
 
-# Otimização Swappiness
 if ! grep -q "vm.swappiness=10" /etc/sysctl.conf; then
     echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf > /dev/null
     sudo sysctl -p > /dev/null
 fi
 
 # --- FASE 5: AUTO-COMPLETAR (TAB) ---
+echo -e "${YELLOW}Fase 5: Configurando TAB (Bash Completion)...${NC}"
 sudo sed -i '/^#[[:space:]]*if ! shopt -oq posix; then/,/^[[:space:]]*#fi/{s/^[[:space:]]*#//}' /etc/bash.bashrc
 
-# --- FASE 6: LOGIN AUTOMÁTICO (CORREÇÃO GDM3) ---
-echo -e "${YELLOW}Fase 6: Configurando Login Automático para 'aluno'...${NC}"
+# --- FASE 6: LOGIN AUTOMÁTICO ---
+echo -e "${YELLOW}Fase 6: Configurando Login Automático (aluno)...${NC}"
 GDM_CONF="/etc/gdm3/daemon.conf"
 if [ -f "$GDM_CONF" ]; then
-    # Remove o comentário (#) e espaços no início da linha, e define os valores
+    # Remove comentário e espaços das linhas de login automático
     sudo sed -i 's/^[[:space:]]*#[[:space:]]*AutomaticLoginEnable.*/AutomaticLoginEnable = true/' "$GDM_CONF"
-    sudo sed -i 's/^[[:space:]]*#[[:space:]]*AutomaticLogin[[:space:]]*=.*/AutomaticLogin = aluno/' "$GDM_CONF"
+    sudo sed -i 's/^[[:space:]]*#[[:space:]]*AutomaticLogin =.*/AutomaticLogin = aluno/' "$GDM_CONF"
 fi
 
-# --- FASE 7: CRONTAB E BILIBOP ---
-echo -e "${YELLOW}Fase 7 e 8: Crontab e Bilibop...${NC}"
+# --- FASE 7: CONFIGURAÇÃO CRONTAB (DESLIGAMENTO 23:30) ---
+echo -e "${YELLOW}Fase 7: Agendando desligamento automático para 23:30...${NC}"
 sudo sed -i '/shutdown -h now/d' /etc/crontab
 echo "30 23   * * * root    /sbin/shutdown -h now" | sudo tee -a /etc/crontab > /dev/null
 
+# --- FASE 8: CONFIGURAÇÃO BILIBOP ---
+echo -e "${YELLOW}Fase 8: Configurando Bilibop (LOCKFS)...${NC}"
+if [ ! -d /etc/bilibop ]; then
+    sudo mkdir -p /etc/bilibop
+fi
 echo 'BILIBOP_LOCKFS="true"' | sudo tee /etc/bilibop/bilibop.conf > /dev/null
 
 # --- FASE 9: FINALIZAÇÃO ---
-echo -e "${GREEN}CONCLUÍDO! Reiniciando...${NC}"
-sleep 5
+echo -e "${BLUE}=====================================================${NC}"
+echo -e "${GREEN}      INSTALAÇÃO CONCLUÍDA COM SUCESSO!            ${NC}"
+echo -e "${BLUE}=====================================================${NC}"
+echo -e "${YELLOW}O sistema será reiniciado em 10 segundos...${NC}"
+echo ""
+
+for i in {10..1}; do
+    echo -ne "${RED}Reiniciando em $i segundos...${NC}\r"
+    sleep 1
+done
+
+echo -e "\n${GREEN}Reiniciando agora...${NC}"
 sudo reboot
