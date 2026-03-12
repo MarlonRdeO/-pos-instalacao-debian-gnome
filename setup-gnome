@@ -79,7 +79,7 @@ echo -e "${YELLOW}Fase 4: Adicionando Aliases e otimizando Swappiness...${NC}"
 if ! grep -q "# === ALIASES ÚTEIS ===" ~/.bashrc; then
     cat << 'EOF' >> ~/.bashrc
 # === ALIASES ÚTEIS ===
-alias atualizar='sudo nala update && sudo nala upgrade -y && sudo flatpak update -y && sudo snap refresh'
+alias atualizar='sudo apt update && sudo apt upgrade -y && sudo flatpak update -y && sudo snap refresh'
 alias desligar='systemctl poweroff'
 alias reiniciar='systemctl reboot'
 alias sourceslist='sudo nano /etc/apt/sources.list'
