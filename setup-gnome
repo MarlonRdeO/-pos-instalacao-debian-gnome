@@ -81,6 +81,7 @@ if ! grep -q "# === ALIASES ÚTEIS ===" ~/.bashrc; then
 # === ALIASES ÚTEIS ===
 alias atualizar='sudo apt update && sudo apt upgrade -y && sudo flatpak update -y && sudo snap refresh'
 alias desligar='systemctl poweroff'
+alias crontab='sudo nano /etc/crontab
 alias reiniciar='systemctl reboot'
 alias sourceslist='sudo nano /etc/apt/sources.list'
 alias memoriaram='sudo nano /etc/sysctl.conf'
